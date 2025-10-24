@@ -8,10 +8,11 @@
 import SwiftUI
 
 @main
-struct ch2App: App {
+struct ch2App: App { // تأكد أن الاسم يطابق اسم مشروعك
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            // استدعاء أول شاشة (PlantStartView)
+            PlantStartView()
         }
     }
 }
