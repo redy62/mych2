@@ -6,41 +6,6 @@
 //
 import SwiftUI
 
-// 💧 Liquid Glass Button
-struct LiquidGlassButton: View {
-    var icon: String
-    var color: Color
-    var action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            ZStack {
-                // الطبقة الزجاجية
-                Circle()
-                    .fill(.ultraThinMaterial)
-                    .frame(width: 44, height: 44)
-                
-                // الطبقة الملونة الشفافة
-                Circle()
-                    .fill(color.opacity(0.4))
-                    .frame(width: 44, height: 44)
-                
-                // البوردر الخفيف
-                Circle()
-                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                    .frame(width: 44, height: 44)
-                
-                // الأيقونة
-                Image(systemName: icon)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.white)
-            }
-            .shadow(color: color.opacity(0.2), radius: 4, x: 0, y: 2)
-        }
-    }
-}
-
-// 📝 Set Reminder View
 struct SetReminderView: View {
     @State private var selectedRoom: String = "Bedroom"
     @State private var selectedLight: String = "Full sun"
@@ -56,8 +21,15 @@ struct SetReminderView: View {
             List {
                 // قسم اسم النبتة
                 Section {
-                    TextField("Plant Name", text: $plantName)
-                        .foregroundStyle(.white)
+                    ZStack(alignment: .leading) {
+                        if plantName.isEmpty {
+                            Text("Plant Name")
+                                .foregroundColor(.white.opacity(10)) // اللون الأبيض للـ placeholder
+                        }
+                        TextField("", text: $plantName)
+                            .foregroundStyle(.white) // لون الكتابة أبيض
+                            .keyboardType(.asciiCapable)
+                    }
                 }
                 .listRowBackground(Color.customDarkGray)
 
@@ -161,26 +133,37 @@ struct SetReminderView: View {
             .navigationTitle("Set Reminder")
             .navigationBarTitleDisplayMode(.inline)
             
-            // أزرار Liquid Glass
+            // أزرار عادية
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    LiquidGlassButton(icon: "xmark", color: .gray) {
+                    Button(action: {
                         dismiss()
-                    }
+                    }, label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.white)
+                    })
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color("bottomNavigationButtonColor"))
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    LiquidGlassButton(icon: "checkmark", color: Color("bottom1")) {
+                    Button(action: {
                         onSave?(plantName, selectedRoom, selectedLight, selectedWaterAmount)
                         dismiss()
-                    }
+                    }, label: {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.white)
+                    })
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color("bottom1"))
                 }
             }
         }
         .preferredColorScheme(.dark)
     }
     
-    // دالة لاختيار الأيقونة المناسبة
     private func lightIcon(for light: String) -> String {
         switch light {
         case "Full sun":
@@ -195,7 +178,6 @@ struct SetReminderView: View {
     }
 }
 
-// الألوان المخصصة
 extension Color {
     static let customDarkGray = Color(red: 0.1, green: 0.1, blue: 0.1)
     
@@ -205,12 +187,9 @@ extension Color {
         Scanner(string: hex).scanHexInt64(&int)
         let a, r, g, b: UInt64
         switch hex.count {
-        case 6: // RGB (24-bit)
-            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        case 8: // ARGB (32-bit)
-            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-        default:
-            (a, r, g, b) = (255, 0, 0, 0)
+        case 6: (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        case 8: (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+        default: (a, r, g, b) = (255, 0, 0, 0)
         }
         self.init(
             .sRGB,
