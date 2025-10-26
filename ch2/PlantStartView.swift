@@ -59,13 +59,13 @@ struct PlantStartView: View {
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(width: 299, height: 45)
-                        .background(Color("bottom1")) // ⬅️ اللون الأصلي
+                        .background(Color("bottom1"))
                         .cornerRadius(30)
                 }
                 .padding(.bottom, 150)
                 
-                .fullScreenCover(isPresented: $showMyPlants) {
-                    MyPlantsView()
+                .sheet(isPresented: $showMyPlants) {
+SetReminderView()
                 }
             }
         }

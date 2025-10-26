@@ -6,110 +6,198 @@
 //
 import SwiftUI
 
-// =================================================================
-// 0. الهيكل والبيانات (Plant Model)
-// =================================================================
+// 🌱 Plant Model
 struct Plant: Identifiable {
     let id = UUID()
-    let name: String
-    let room: String
-    let light: String
-    let waterAmount: String
+    var name: String
+    var room: String
+    var light: String
+    var waterAmount: String
     var isWatered: Bool = false
 }
 
-extension Plant {
-    static let samplePlants: [Plant] = [
-        Plant(name: "Pothos", room: "Living Room", light: "Full sun", waterAmount: "20-50 ml"),
-        Plant(name: "Orchid", room: "Living Room", light: "Full sun", waterAmount: "20-50 ml"),
-        Plant(name: "Monstera", room: "Kitchen", light: "Full sun", waterAmount: "20-50 ml"),
-        Plant(name: "Spider", room: "Bedroom", light: "Full sun", waterAmount: "20-50 ml")
-    ]
-}
-
-// =================================================================
-// 0.2 دالة مساعدة لإنشاء صف النبتة (Plant Row)
-// =================================================================
+// 🪴 Plant Row
 struct PlantRow: View {
     @Binding var plant: Plant
+    var onTap: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top) {
-                // ⬅️ الدائرة على اليسار للتشيك
-                Button {
-                    plant.isWatered.toggle()
-                } label: {
-                    Image(systemName: plant.isWatered ? "checkmark.circle.fill" : "circle")
-                        .font(.title2)
-                        .foregroundColor(plant.isWatered ? .green : .gray.opacity(0.8))
-                }
-                .padding(.trailing, 8)
-                
-                VStack(alignment: .leading, spacing: 8) {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .top) {
+                    // زر التشيك
+                    Button {
+                        withAnimation {
+                            plant.isWatered.toggle()
+                        }
+                    } label: {
+                        Image(systemName: plant.isWatered ? "checkmark.circle.fill" : "circle")
+                            .font(.title2)
+                            .foregroundColor(plant.isWatered ? Color("bottom1") : .gray.opacity(0.8))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.trailing, 8)
                     
-                    // اسم النبتة (Pothos, Orchid) - كبير وأبيض
-                    Text(plant.name)
-                        .font(.title2)
-                        .fontWeight(.medium)
-                        .foregroundColor(.white)
-                    
-                    // معلومات الإضاءة والماء في سطر واحد
-                    HStack(spacing: 15) {
-                        // الإضاءة - لون ذهبي
-                        HStack(spacing: 4) {
-                            Image(systemName: "sun.max")
-                                .font(.caption)
-                                .foregroundColor(.orange)
-                            Text(plant.light)
-                                .font(.caption)
-                                .foregroundColor(.orange)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(plant.name)
+                            .font(.title2)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                        
+                        HStack(spacing: 15) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "sun.max")
+                                    .font(.caption)
+                                    .foregroundColor(Color(hex: "#CCC785")) // نفس لون الشمس
+                                Text(plant.light)
+                                    .font(.caption)
+                                    .foregroundColor(Color(hex: "#CCC785")) // نفس لون الشمس
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color(hex: "#18181D")) // نفس الخلفية
+                            .cornerRadius(6)
+                            
+                            HStack(spacing: 4) {
+                                Image(systemName: "drop")
+                                    .font(.caption)
+                                    .foregroundColor(Color(hex: "#CAF3FB")) // نفس لون القطرة
+                                Text(plant.waterAmount)
+                                    .font(.caption)
+                                    .foregroundColor(Color(hex: "#CAF3FB")) // نفس لون القطرة
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color(hex: "#18181D")) // نفس الخلفية
+                            .cornerRadius(6)
                         }
                         
-                        // الماء - لون أزرق
                         HStack(spacing: 4) {
-                            Image(systemName: "drop")
+                            Image(systemName: "paperplane")
+                                .font(.caption2)
+                                .foregroundColor(.gray)
+                            Text("in \(plant.room)")
                                 .font(.caption)
-                                .foregroundColor(.blue)
-                            Text(plant.waterAmount)
-                                .font(.caption)
-                                .foregroundColor(.blue)
+                                .foregroundColor(.gray)
                         }
                     }
-                    
-                    // الموقع - رمادي
-                    HStack(spacing: 4) {
-                        Image(systemName: "paperplane")
-                            .font(.caption2)
-                            .foregroundColor(.gray)
-                        Text("in \(plant.room)")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
+                    Spacer()
                 }
+                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
                 
-                Spacer()
+                Divider()
+                    .background(Color.gray.opacity(0.3))
             }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+//📊 Progress Bar
+struct ProgressBarView: View {
+    let wateredCount: Int
+    let totalCount: Int
+    
+    var progress: Double {
+        guard totalCount > 0 else { return 0 }
+        return Double(wateredCount) / Double(totalCount)
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if wateredCount == 0 {
+                Text("Your plants are waiting for a sip 💦")
+                    .font(.headline)
+                    .foregroundColor(.white)
+            } else if wateredCount == totalCount {
+                Text("All Done! 🎉")
+                    .font(.headline)
+                    .foregroundColor(Color("bottom1"))
+            } else {
+                Text("\(wateredCount) of your plants feel loved today ✨")
+                    .font(.headline)
+                    .foregroundColor(.white)
+            }
             
-            // ⬅️ الخط الفاصل بين الصفوف - زي الكود الأصلي
-            Divider()
-                .background(Color.gray.opacity(0.3))
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(height: 8)
+                    
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color("bottom1"))
+                        .frame(width: geometry.size.width * progress, height: 8)
+                        .animation(.easeInOut(duration: 0.3), value: progress)
+                }
+            }
+            .frame(height: 8)
         }
     }
 }
 
-// =================================================================
-// 1. MyPlantsView (شاشة القائمة الرئيسية)
-// =================================================================
-struct MyPlantsView: View {
-    @State private var plants: [Plant] = Plant.samplePlants
-    @State private var showingSetReminder = false
+// 🎉 All Done View
+struct AllDoneView: View {
+    @Environment(\.dismiss) var dismiss
+    var onAddPlant: () -> Void
     
-    // حساب عدد النباتات المسقية
+    var body: some View {
+        ZStack(alignment: .bottomTrailing) {
+            Color.black.ignoresSafeArea()
+            
+            VStack(spacing: 30) {
+                Spacer()
+                
+                Image("Image2")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 250, height: 250)
+
+                Text("All Done! 🎉")
+                    .font(.system(size: 32, weight: .bold))
+                    .foregroundColor(.white)
+                
+                Text("All Reminders Completed")
+                    .font(.headline)
+                    .foregroundColor(.gray)
+                    .frame(maxWidth: .infinity)
+                Spacer()
+            }
+            
+            // زر الإضافة
+            Button {
+                dismiss()
+                onAddPlant()
+            } label: {
+                Image(systemName: "plus")
+                    .font(.title2)
+                    .frame(width: 55, height: 55)
+                    .background(Color("bottom1"))
+                    .foregroundColor(.white)
+                    .clipShape(Circle())
+                    .shadow(radius: 5)
+            }
+            .padding(.bottom, 40)
+            .padding(.trailing, 20)
+        }
+    }
+}
+
+// 📱 My Plants View
+struct MyPlantsView: View {
+    @State private var plants: [Plant] = []
+    @State private var showingSetReminder = false
+    @State private var showingAllDone = false
+    @State private var selectedPlant: Plant?
+    @State private var showingEditPlant = false
+    
     var wateredPlantsCount: Int {
         plants.filter { $0.isWatered }.count
+    }
+    
+    var allPlantsWatered: Bool {
+        !plants.isEmpty && wateredPlantsCount == plants.count
     }
 
     var body: some View {
@@ -117,7 +205,6 @@ struct MyPlantsView: View {
             Color.black.ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 10) {
-                
                 // العنوان العلوي
                 Group {
                     HStack {
@@ -127,68 +214,57 @@ struct MyPlantsView: View {
                             .foregroundColor(.white)
                     }
                     
-                    // شريط الحالة - بيتغير حسب عدد النباتات المسقية
-                    HStack {
-                        if wateredPlantsCount == 0 {
-                            Text("Your plants are waiting for a sip💦")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                        } else {
-                            Text("\(wateredPlantsCount) of your plants feel loved today✨")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                        }
-                    }
-                    .padding(.bottom, 10)
+                    // الخط تحت العنوان - نفس خط الـ Divider
+                    Divider()
+                        .background(Color.gray.opacity(0.3))
+                        .padding(.bottom, 10)
                     
-                    // خط فاصل أسفل العنوان
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.5))
-                        .frame(height: 1)
+                    // Progress Bar
+                    ProgressBarView(wateredCount: wateredPlantsCount, totalCount: plants.count)
                 }
                 .padding(.horizontal)
                 
-                // قائمة النباتات مع خاصية الحذف
+                // قائمة النباتات
                 List {
                     ForEach($plants) { $plant in
-                        PlantRow(plant: $plant)
-                            .listRowBackground(Color.black)
-                            .listRowSeparator(.hidden) // ⬅️ إخفاء الخط الافتراضي للقائمة
-                            .listRowInsets(EdgeInsets())
-                            // ⬅️ إضافة خاصية السحب للحذف
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    // إزالة النبتة من المصفوفة
-                                    deletePlant(plant)
-                                } label: {
-                                    Label("Delete", systemImage: "trash.fill")
-                                }
-                                .tint(.red)
+                        PlantRow(plant: $plant) {
+                            selectedPlant = plant
+                            showingEditPlant = true
+                        }
+                        .listRowBackground(Color.black)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets())
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                deletePlant(plant)
+                            } label: {
+                                Label("Delete", systemImage: "trash.fill")
                             }
+                            .tint(.red)
+                        }
                     }
                 }
                 .listStyle(.plain)
             }
             .padding(.top, 20)
 
-            // زر إضافة نبتة (+) في الزاوية
+            // زر الإضافة - دايمًا موجود
             Button {
                 showingSetReminder = true
             } label: {
                 Image(systemName: "plus")
                     .font(.title2)
                     .frame(width: 55, height: 55)
-                    .background(Color.green)
+                    .background(Color("bottom1"))
                     .foregroundColor(.white)
                     .clipShape(Circle())
                     .shadow(radius: 5)
             }
-            .padding(EdgeInsets(top: 0, leading: 0, bottom: 40, trailing: 20))
+            .padding(.bottom, 40)
+            .padding(.trailing, 20)
             
-            // شاشة إضافة نبتة جديدة
             .sheet(isPresented: $showingSetReminder) {
                 SetReminderView { name, room, light, waterAmount in
-                    // إضافة النبتة الجديدة للقائمة
                     let newPlant = Plant(
                         name: name,
                         room: room,
@@ -198,17 +274,32 @@ struct MyPlantsView: View {
                     plants.append(newPlant)
                 }
             }
+            
+            .fullScreenCover(isPresented: $showingAllDone) {
+                AllDoneView {
+                    showingSetReminder = true
+                }
+            }
         }
-        .preferredColorScheme(.dark)
+        .onChange(of: wateredPlantsCount) { newValue in
+            // إذا تم ري جميع النباتات، انتقل لصفحة All Done
+            if allPlantsWatered {
+                showingAllDone = true
+            }
+        }
     }
     
-    // ⬅️ دالة لحذف النبتة
     private func deletePlant(_ plant: Plant) {
         withAnimation {
             plants.removeAll { $0.id == plant.id }
         }
     }
 }
+
+// 🎨 Color Extension
+extension Color {
+     
+    }
 
 #Preview {
     MyPlantsView()
