@@ -14,7 +14,7 @@ struct SetReminderView: View {
     @State private var plantName: String = ""
 
     @Environment(\.dismiss) var dismiss
-    var onSave: ((String, String, String, String) -> Void)?
+    var onSave: ((String, String, String, String) -> Void)? // يُمرر من الصفحة الأولى
 
     var body: some View {
         NavigationStack {
@@ -24,16 +24,16 @@ struct SetReminderView: View {
                     ZStack(alignment: .leading) {
                         if plantName.isEmpty {
                             Text("Plant Name")
-                                .foregroundColor(.white.opacity(10)) // اللون الأبيض للـ placeholder
+                                .foregroundColor(.white.opacity(0.3))
                         }
                         TextField("", text: $plantName)
-                            .foregroundStyle(.white) // لون الكتابة أبيض
+                            .foregroundStyle(.white)
                             .keyboardType(.asciiCapable)
                     }
                 }
                 .listRowBackground(Color.customDarkGray)
 
-                // قسم الموقع والإضاءة
+                // الموقع والإضاءة
                 Section {
                     HStack {
                         Image(systemName: "paperplane")
@@ -56,7 +56,7 @@ struct SetReminderView: View {
                             .foregroundStyle(.gray)
                         }
                     }
-                    
+
                     HStack {
                         Image(systemName: lightIcon(for: selectedLight))
                             .foregroundColor(.white)
@@ -78,8 +78,8 @@ struct SetReminderView: View {
                     }
                 }
                 .listRowBackground(Color.customDarkGray)
-                
-                // قسم السقي والماء
+
+                // سقي والماء
                 Section {
                     HStack {
                         Image(systemName: "drop")
@@ -103,7 +103,7 @@ struct SetReminderView: View {
                             .foregroundStyle(.gray)
                         }
                     }
-                    
+
                     HStack {
                         Image(systemName: "drop")
                             .foregroundColor(.white)
@@ -132,38 +132,38 @@ struct SetReminderView: View {
             .background(Color(hex: "#1C1E1D").ignoresSafeArea())
             .navigationTitle("Set Reminder")
             .navigationBarTitleDisplayMode(.inline)
-            
-            // أزرار عادية
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
                         dismiss()
                     }, label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.white)
-                    })
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color("bottomNavigationButtonColor"))
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        onSave?(plantName, selectedRoom, selectedLight, selectedWaterAmount)
-                        dismiss()
-                    }, label: {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.white)
-                    })
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color("bottom1"))
-                }
-            }
-        }
-        .preferredColorScheme(.dark)
-    }
-    
+                      
+                                   .font(.system(size: 18, weight: .semibold))
+                                   .foregroundColor(.white)
+                           })
+                           .buttonStyle(.borderedProminent)
+                           .tint(Color("bottomNavigationButtonColor"))
+                       }
+                       
+                       ToolbarItem(placement: .navigationBarTrailing) {
+                           Button(action: {
+                               onSave?(plantName, selectedRoom, selectedLight, selectedWaterAmount)
+                               dismiss()
+                           }, label: {
+                               Image(systemName: "checkmark")
+                                   .font(.system(size: 18, weight: .semibold))
+                                   .foregroundColor(.white)
+                           })
+                           .buttonStyle(.borderedProminent)
+                           .tint(Color("bottom1"))
+                       }
+                   }
+               }
+               .preferredColorScheme(.dark)
+           }
+
+
     private func lightIcon(for light: String) -> String {
         switch light {
         case "Full sun":
@@ -180,7 +180,7 @@ struct SetReminderView: View {
 
 extension Color {
     static let customDarkGray = Color(red: 0.1, green: 0.1, blue: 0.1)
-    
+
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
@@ -202,5 +202,8 @@ extension Color {
 }
 
 #Preview {
-    SetReminderView()
+    // معاينة للشيت
+    SetReminderView { _,_,_,_ in }
 }
+
+
